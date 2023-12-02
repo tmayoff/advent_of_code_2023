@@ -2,20 +2,27 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 
+#[derive(PartialEq, Eq, Clone, Copy)]
+enum AllowedDigits {
+    Digit,
+    Word,
+    Both,
+}
+
 fn main() -> Result<()> {
-    let input = include_str!("../input2.txt").to_string();
-    let sum = run(input)?;
+    let input = include_str!("../input.txt").to_string();
+    let sum = run(input, AllowedDigits::Both)?;
     println!("{sum}");
     Ok(())
 }
 
-fn run(input: String) -> Result<u32> {
+fn run(input: String, digit_type: AllowedDigits) -> Result<u32> {
     let lines = input.split('\n');
 
     let mut sum = 0;
 
     for line in lines {
-        let numbers = get_numbers(line);
+        let numbers = get_numbers(line, digit_type);
 
         if let Some((f, s)) = numbers {
             sum += f * 10 + s;
@@ -25,12 +32,12 @@ fn run(input: String) -> Result<u32> {
     Ok(sum)
 }
 
-fn get_numbers(line: &str) -> Option<(u32, u32)> {
+fn get_numbers(line: &str, digit_type: AllowedDigits) -> Option<(u32, u32)> {
     let mut first = None;
     let mut second = None;
 
     let mut line = line;
-    while let Some((i, d)) = contains_number(line) {
+    while let Some((i, d)) = contains_number(line, digit_type) {
         if first.is_none() {
             first = Some(d);
         } else {
@@ -48,7 +55,7 @@ fn get_numbers(line: &str) -> Option<(u32, u32)> {
     Some((first.unwrap(), second.unwrap()))
 }
 
-fn contains_number(line: &str) -> Option<(usize, u32)> {
+fn contains_number(line: &str, digit_type: AllowedDigits) -> Option<(usize, u32)> {
     let numbers: HashMap<String, u32> = HashMap::from([
         ("one".to_string(), 1),
         ("two".to_string(), 2),
@@ -66,20 +73,20 @@ fn contains_number(line: &str) -> Option<(usize, u32)> {
     let mut curr = it.next();
 
     while let Some((i, c)) = curr {
-        if c.is_numeric() {
+        if c.is_numeric()
+            && (digit_type == AllowedDigits::Both || digit_type == AllowedDigits::Digit)
+        {
             return Some((i, c.to_digit(10).unwrap()));
-        } else {
+        } else if digit_type == AllowedDigits::Both || digit_type == AllowedDigits::Word {
             s += &c.to_string();
             let start_of_num = numbers.keys().any(|number| number.starts_with(&s));
+
             if !start_of_num {
                 s.remove(0);
             }
-            // let start_with = numbers.keys().any(|n| n.starts_with(&(s + &c.to_string())));
-            // if !s.is_empty() || start_with {
-            // }
 
             if numbers.contains_key(&s.to_lowercase()) {
-                return Some((i, numbers[&s]));
+                return Some((i - 1, numbers[&s]));
             }
         }
 
@@ -111,20 +118,20 @@ mod tests {
             },
             Test {
                 line: "one".to_string(),
-                expected: Some((2, 1)),
+                expected: Some((1, 1)),
             },
             Test {
                 line: "two".to_string(),
-                expected: Some((2, 2)),
+                expected: Some((1, 2)),
             },
             Test {
                 line: "three".to_string(),
-                expected: Some((4, 3)),
+                expected: Some((3, 3)),
             },
         ];
 
         for test in tests {
-            let actual = contains_number(&test.line);
+            let actual = contains_number(&test.line, AllowedDigits::Both);
             assert!(
                 actual == test.expected,
                 "Actual: {:?}, Test: {:?}",
@@ -136,12 +143,17 @@ mod tests {
 
     #[test]
     fn words() {
+        #[derive(Debug)]
         struct Test {
             input: String,
             expected: Option<(u32, u32)>,
         }
 
         let tests = vec![
+            Test {
+                input: "twoone".to_string(),
+                expected: Some((2, 1)),
+            },
             Test {
                 input: "two1nine".to_string(),
                 expected: Some((2, 9)),
@@ -173,22 +185,24 @@ mod tests {
         ];
 
         for test in tests {
-            let actual = get_numbers(&test.input);
-            assert!(actual == test.expected);
+            let actual = get_numbers(&test.input, AllowedDigits::Both);
+            assert_eq!(actual, test.expected);
         }
     }
 
     #[test]
     fn part1() {
-        let input = include_str!("../input1.txt");
-        let r = run(input.to_string());
+        let input = include_str!("../input.txt");
+        let r = run(input.to_string(), AllowedDigits::Digit);
         assert!(r.is_ok());
+        assert_eq!(r.unwrap(), 54630)
     }
 
     #[test]
     fn part2() {
-        let input = include_str!("../input2.txt");
-        let r = run(input.to_string());
+        let input = include_str!("../input.txt");
+        let r = run(input.to_string(), AllowedDigits::Both);
         assert!(r.is_ok());
+        assert_eq!(r.unwrap(), 54770)
     }
 }
