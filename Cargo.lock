@@ -30,3 +30,6 @@ dependencies = [
 [[package]]
 name = "day3"
 version = "0.1.0"
+dependencies = [
+ "common",
+]
