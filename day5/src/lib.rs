@@ -1,4 +1,9 @@
-use std::{collections::HashMap, ops::Range};
+use rayon::prelude::*;
+use std::{
+    collections::HashMap,
+    ops::Range,
+    sync::{Arc, Mutex},
+};
 
 use common::{get_number, get_number_from_list, Runner};
 
@@ -104,21 +109,18 @@ impl Runner for Part2 {
 
         let chain = &get_chain_maps("location", &maps);
 
-        let mut min = None;
-        for r in seeds {
-            for s in r {
+        let min = Arc::new(Mutex::new(std::u64::MAX));
+        seeds.par_iter().for_each(|r| {
+            for s in r.clone() {
                 let loc = get_dst_num("seed", s, chain, &maps);
-                if let Some(m) = min {
-                    if loc < m {
-                        min = Some(loc);
-                    }
-                } else {
-                    min = Some(loc);
-                }
-            }
-        }
+                let mut min = min.lock().unwrap();
 
-        min.unwrap() as u32
+                *min = (*min).min(loc);
+            }
+        });
+
+        let m = *min.lock().unwrap();
+        m as u32
     }
 }
 
