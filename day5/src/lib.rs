@@ -61,6 +61,67 @@ impl Runner for Part1 {
     }
 }
 
+struct Part2;
+impl Runner for Part2 {
+    fn run(input: &str) -> u32 {
+        let mut lines = input
+            .split('\n')
+            .map(|l| l.trim())
+            .skip_while(|l| l.is_empty());
+        let seeds = lines.next().unwrap();
+        let seeds = get_seed_ranges(seeds);
+
+        let mut lines = lines.clone().skip_while(|l| l.is_empty());
+
+        let mut maps = HashMap::new();
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let map_category = get_map_src_dst(lines.next().unwrap());
+        let map = get_maps(&mut lines);
+        maps.insert(map_category, map);
+
+        let chain = &get_chain_maps("location", &maps);
+
+        let mut min = None;
+        for r in seeds {
+            for s in r {
+                let loc = get_dst_num("seed", s, chain, &maps);
+                if let Some(m) = min {
+                    if loc < m {
+                        min = Some(loc);
+                    }
+                } else {
+                    min = Some(loc);
+                }
+            }
+        }
+
+        min.unwrap() as u32
+    }
+}
+
 fn get_dst_num(
     map_src: &str,
     input: u64,
@@ -158,6 +219,37 @@ fn get_map(input: &str) -> (Range<u64>, Range<u64>) {
     (src_range, dst_range)
 }
 
+fn get_seed_ranges(input: &str) -> Vec<Range<u64>> {
+    let mut seeds = Vec::new();
+
+    let mut it = input.split(':').filter(|l| !l.is_empty());
+    it.next();
+
+    let seed_str = it.next();
+    let seed_str = seed_str.unwrap().split(' ').filter(|l| !l.is_empty());
+    for s in seed_str {
+        seeds.push(get_number(s) as u64);
+    }
+
+    assert!(seeds.len() % 2 == 0);
+
+    let mut ranges = Vec::new();
+    let mut i = 0;
+    loop {
+        let start = seeds.get(i).unwrap().to_owned();
+        let end = start + seeds.get(i + 1).unwrap();
+
+        i += 1;
+        if i > seeds.len() / 2 {
+            break;
+        }
+
+        ranges.push(start..end);
+    }
+
+    ranges
+}
+
 fn get_seeds(input: &str) -> Vec<u64> {
     let mut seeds = Vec::new();
 
@@ -181,7 +273,14 @@ mod tests {
     fn part1() {
         let input = include_str!("../input.txt");
         let res = Part1::run(input);
-        assert_eq!(res, 0);
+        assert_eq!(res, 214922730);
+    }
+
+    #[test]
+    fn part2() {
+        let input = include_str!("../input.txt");
+        let res = Part2::run(input);
+        assert_eq!(res, 214922730);
     }
 
     #[test]
