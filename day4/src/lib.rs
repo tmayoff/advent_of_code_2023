@@ -5,7 +5,7 @@ use common::{get_number, get_number_from_list, Runner};
 struct Part1;
 
 impl Runner for Part1 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut sum = 0;
@@ -41,12 +41,12 @@ impl Runner for Part1 {
 struct Part2;
 
 impl Runner for Part2 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut sum = 0;
 
-        let mut final_cards: HashMap<u32, u32> = HashMap::new();
+        let mut final_cards: HashMap<u64, u64> = HashMap::new();
         for l in lines {
             let l = l.trim();
             let mut card = l.split(':').filter(|l| !l.is_empty());

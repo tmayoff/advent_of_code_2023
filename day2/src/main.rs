@@ -10,7 +10,7 @@ fn main() {}
 
 pub struct Part1;
 impl Runner for Part1 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut sum = 0;
@@ -36,7 +36,7 @@ impl Runner for Part1 {
             }
         }
 
-        sum
+        sum as u64
     }
 }
 
@@ -72,7 +72,7 @@ impl Part1 {
 
 struct Part2;
 impl Runner for Part2 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut sum = 0;
@@ -86,7 +86,7 @@ impl Runner for Part2 {
             sum += power;
         }
 
-        sum
+        sum as u64
     }
 }
 

@@ -3,7 +3,7 @@ use std::{collections::HashSet, ops::RangeInclusive};
 struct Part1;
 
 impl common::Runner for Part1 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut grid = Vec::new();
@@ -73,7 +73,7 @@ impl common::Runner for Part1 {
         let mut sum = 0;
         part_numbers.iter().for_each(|n| sum += n);
 
-        sum
+        sum as u64
     }
 }
 
@@ -120,7 +120,7 @@ impl Part1 {
 struct Part2;
 
 impl common::Runner for Part2 {
-    fn run(input: &str) -> u32 {
+    fn run(input: &str) -> u64 {
         let lines = input.split('\n').filter(|l| !l.is_empty());
 
         let mut grid = Vec::new();
@@ -169,7 +169,7 @@ impl common::Runner for Part2 {
         let mut sum = 0;
         ratios.iter().for_each(|n| sum += n);
 
-        sum
+        sum as u64
     }
 }
 
